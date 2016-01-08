@@ -51,12 +51,12 @@ function Rainbow() {
     this.setSpectrum = function () {
         setColours(arguments);
         return this;
-    }
+    };
 
     this.setSpectrumByArray = function (array) {
         setColours(array);
         return this;
-    }
+    };
 
     this.colourAt = function (number) {
         if (isNaN(number)) {
@@ -68,7 +68,7 @@ function Rainbow() {
             var index = Math.min(Math.floor((Math.max(number, minNum) - minNum) / segment), gradients.length - 1);
             return gradients[index].colourAt(number);
         }
-    }
+    };
 
     this.colorAt = this.colourAt;
 
@@ -94,7 +94,7 @@ function ColourGradient() {
     this.setGradient = function (colourStart, colourEnd) {
         startColour = getHexColour(colourStart);
         endColour = getHexColour(colourEnd);
-    }
+    };
 
     this.setNumberRange = function (minNumber, maxNumber) {
         if (maxNumber > minNumber) {
@@ -103,13 +103,13 @@ function ColourGradient() {
         } else {
             throw new RangeError('maxNumber (' + maxNumber + ') is not greater than minNumber (' + minNumber + ')');
         }
-    }
+    };
 
     this.colourAt = function (number) {
         return calcHex(number, startColour.substring(0, 2), endColour.substring(0, 2))
             + calcHex(number, startColour.substring(2, 4), endColour.substring(2, 4))
             + calcHex(number, startColour.substring(4, 6), endColour.substring(4, 6));
-    }
+    };
 
     function calcHex(number, channelStart_Base16, channelEnd_Base16) {
         var num = number;
