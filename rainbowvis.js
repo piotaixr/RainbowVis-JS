@@ -32,6 +32,22 @@ function Rainbow() {
         }
     }
 
+    /**
+     * format example: [[0, '#000000'], [0.2, '#FF0000'], [1, '#FFFFFF']]
+     * @param spectrum
+     */
+    this.setColorFromGradient = function (spectrum) {
+        gradients = [];
+        var spaceSize = maxNum - minNum;
+
+        for (var i = 0; i < spectrum.length - 1; i++) {
+            var colourGradient = new ColourGradient();
+            colourGradient.setGradient(spectrum[i][1], spectrum[i + 1][1]);
+            colourGradient.setNumberRange(minNum + spaceSize * spectrum[i][0], minNum + spaceSize * spectrum[i + 1][0]);
+            gradients.push(colourGradient);
+        }
+    };
+
     this.setSpectrum = function () {
         setColours(arguments);
         return this;
@@ -292,3 +308,4 @@ function ColourGradient() {
 if (typeof module !== 'undefined') {
     module.exports = Rainbow;
 }
+
