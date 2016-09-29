@@ -17,7 +17,7 @@ window.onload = function(){
 		var rainbow = new Rainbow(); // by default, range is 0 to 100
 		var s = '<h3>Default</h3>';
 		for (var i = 0; i <= 100; i = i + 10) {
-			var hex = '#' + rainbow.colourAt(i);
+			var hex = '#' + rainbow.colorAt(i);
 			s += '<span style="color:' + hex + '">' + i + ' -&gt; ' + hex + '</span><br/>';
 		}
 
@@ -26,7 +26,7 @@ window.onload = function(){
 		rainbow.setSpectrum('red', 'FFFFFF', '#00ff00');
 		rainbow.setNumberRange(-0.5, 0.5);
 		for (var i = -5; i <= 5 ; i++) {
-			var hex = '#' + rainbow.colourAt(i/10);
+			var hex = '#' + rainbow.colorAt(i/10);
 			s += '<span style="color:' + hex + '">' + i/10 + ' -&gt; ' + hex + '</span><br/>';
 		}
 		document.getElementById("mappings").innerHTML = s;
@@ -92,7 +92,7 @@ window.onload = function(){
 			["Clock",3]
 		];
 
-		var heatmap = new Rainbow(); 
+		var heatmap = new Rainbow();
 		heatmap.setSpectrum('black', 'blue', 'aqua', 'lime', 'yellow', 'red');
 		heatmap.setNumberRange(0, 5000);
 		var table = '<table><tr><th>Appliance</th><th>Typical Wattage</th></tr>';
@@ -100,7 +100,7 @@ window.onload = function(){
 			var appliance = wattages[i][0];
 			var watts = wattages[i][1];
 			table += '<tr><td>' + appliance + '</td>';
-			var hexColour = '#' + heatmap.colourAt(watts);
+			var hexColour = '#' + heatmap.colorAt(watts);
 			table += '<td style="background-color:' + hexColour + '; color: #fff">' + watts + '</td></tr>';
 		}
 		table += '</table>';
@@ -121,7 +121,7 @@ window.onload = function(){
 		for (var i = 1; i <= RAINBOW_WIDTH; i++) {
 			context.beginPath();
 			context.arc(canvas.width / 2, canvas.width / 2, RAINBOW_RADIUS - i + 1, Math.PI, 0, false);
-	    		context.strokeStyle = '#' + rainbow2.colourAt(i); 
+	    		context.strokeStyle = '#' + rainbow2.colorAt(i);
 	    		context.stroke();
 		}
 	} catch (err) {
