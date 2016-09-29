@@ -5,7 +5,7 @@
     "Sophiah Ho"
   ],
   "description": "A JavaScript library for colour data visualization. Easily map numbers to a smooth-transitioning colour legend.",
-  "main": "rainbowvis.js",
+  "main": "RainbowVis.js",
   "keywords": [
     "color",
     "colour",
