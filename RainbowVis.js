@@ -157,7 +157,7 @@ const colorNames = {
     yellowgreen: "9ACD32"
 };
 
-class ColourGradient {
+class ColorGradient {
     constructor(start, end, min, max) {
         this.startColour = this.getHexColor(start);
         this.endColour = this.getHexColor(end);
@@ -165,7 +165,7 @@ class ColourGradient {
         this.maxNum = max;
     }
 
-    setGradient = function (colourStart, colourEnd) {
+    setGradient(colourStart, colourEnd) {
         this.startColour = this.getHexColor(colourStart);
         this.endColour = this.getHexColor(colourEnd);
 
@@ -226,7 +226,7 @@ class ColourGradient {
      * @returns {*}
      */
     static getHexColor(string) {
-        if (ColourGradient.isHexColor(string)) {
+        if (ColorGradient.isHexColor(string)) {
             return string.substring(string.length - 6, string.length);
         } else {
             var name = string.toLowerCase();
@@ -251,11 +251,11 @@ class RainbowVis {
             throw new Error('Rainbow must have two or more colours.');
         } else {
             var increment = (this.maxNum - this.minNum) / (spectrum.length - 1);
-            var firstGradient = new ColourGradient(spectrum[0], spectrum[1], this.minNum, this.minNum + increment);
+            var firstGradient = new ColorGradient(spectrum[0], spectrum[1], this.minNum, this.minNum + increment);
             this.gradients = [firstGradient];
 
             for (var i = 1; i < spectrum.length - 1; i++) {
-                this.gradients[i] = new ColourGradient(spectrum[i], spectrum[i + 1], this.minNum + increment * i, this.minNum + increment * (i + 1));
+                this.gradients[i] = new ColorGradient(spectrum[i], spectrum[i + 1], this.minNum + increment * i, this.minNum + increment * (i + 1));
             }
 
             this.colours = spectrum;
@@ -276,7 +276,7 @@ class RainbowVis {
         for (var i = 1; i < spectrum.length; i++) {
             var [value, color] = spectrum[i];
 
-            this.gradients.push(new ColourGradient(prevValue, value, this.minNum + spaceSize * prevColor, this.minNum + spaceSize * color));
+            this.gradients.push(new ColorGradient(prevValue, value, this.minNum + spaceSize * prevColor, this.minNum + spaceSize * color));
 
             prevValue = value;
             prevColor = color;
