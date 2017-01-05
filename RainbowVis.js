@@ -29,7 +29,7 @@ class ColorGradient {
         }
     };
 
-    colorAt(number) {
+    colourAt(number) {
         return this.calcHex(number, this.startColour.substring(0, 2), this.endColour.substring(0, 2))
             + this.calcHex(number, this.startColour.substring(2, 4), this.endColour.substring(2, 4))
             + this.calcHex(number, this.startColour.substring(4, 6), this.endColour.substring(4, 6));
@@ -96,8 +96,8 @@ class Rainbow {
         if (spectrum.length < 2) {
             throw new Error('Rainbow must have two or more colours.');
         } else {
-            let increment = (this.maxNum - this.minNum) / (spectrum.length - 1);
-            let firstGradient = new ColorGradient(spectrum[0], spectrum[1], this.minNum, this.minNum + increment);
+            const increment = (this.maxNum - this.minNum) / (spectrum.length - 1);
+            const firstGradient = new ColorGradient(spectrum[0], spectrum[1], this.minNum, this.minNum + increment);
             this.gradients = [firstGradient];
 
             for (let i = 1; i < spectrum.length - 1; i++) {
@@ -145,11 +145,11 @@ class Rainbow {
         if (isNaN(number)) {
             throw new TypeError(number + ' is not a number');
         } else if (this.gradients.length === 1) {
-            return this.gradients[0].colorAt(number);
+            return this.gradients[0].colourAt(number);
         } else {
             let segment = (this.maxNum - this.minNum) / (this.gradients.length);
             let index = Math.min(Math.floor((Math.max(number, this.minNum) - this.minNum) / segment), this.gradients.length - 1);
-            return this.gradients[index].colorAt(number);
+            return this.gradients[index].colourAt(number);
         }
     };
 
