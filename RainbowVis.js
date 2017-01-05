@@ -3,7 +3,168 @@
  Released under Eclipse Public License - v 1.0
  */
 
-"use strict";
+class ColorGradient {
+    constructor(start, end, min, max) {
+        this.startColour = ColorGradient.getHexColor(start);
+        this.endColour = ColorGradient.getHexColor(end);
+        this.minNum = min;
+        this.maxNum = max;
+    }
+
+    setGradient(colourStart, colourEnd) {
+        this.startColour = ColorGradient.getHexColor(colourStart);
+        this.endColour = ColorGradient.getHexColor(colourEnd);
+
+        return this;
+    };
+
+    setNumberRange(minNumber, maxNumber) {
+        if (maxNumber > minNumber) {
+            this.minNum = minNumber;
+            this.maxNum = maxNumber;
+
+            return this;
+        } else {
+            throw new RangeError('maxNumber (' + maxNumber + ') is not greater than minNumber (' + minNumber + ')');
+        }
+    };
+
+    colourAt(number) {
+        return this.calcHex(number, this.startColour.substring(0, 2), this.endColour.substring(0, 2))
+            + this.calcHex(number, this.startColour.substring(2, 4), this.endColour.substring(2, 4))
+            + this.calcHex(number, this.startColour.substring(4, 6), this.endColour.substring(4, 6));
+    };
+
+    calcHex(number, channelStart_Base16, channelEnd_Base16) {
+        let num = number;
+        if (num < this.minNum) {
+            num = this.minNum;
+        }
+        if (num > this.maxNum) {
+            num = this.maxNum;
+        }
+        let numRange = this.maxNum - this.minNum;
+        let cStart_Base10 = parseInt(channelStart_Base16, 16);
+        let cEnd_Base10 = parseInt(channelEnd_Base16, 16);
+        let cPerUnit = (cEnd_Base10 - cStart_Base10) / numRange;
+        let c_Base10 = Math.round(cPerUnit * (num - this.minNum) + cStart_Base10);
+
+        return ColorGradient.formatHex(c_Base10.toString(16));
+    }
+
+    static formatHex(hex) {
+        if (hex.length === 1) {
+            return '0' + hex;
+        } else {
+            return hex;
+        }
+    }
+
+    static isHexColor(string) {
+        let regex = /^#?[0-9a-fA-F]{6}$/i;
+
+        return regex.test(string);
+    }
+
+    /**
+     *
+     * @param {String} string
+     * @returns {*}
+     */
+    static getHexColor(string) {
+        if (ColorGradient.isHexColor(string)) {
+            return string.substring(string.length - 6, string.length);
+        } else {
+            let name = string.toLowerCase();
+            if (colorNames.hasOwnProperty(name)) {
+                return colorNames[name];
+            }
+            throw new Error(string + ' is not a valid colour.');
+        }
+    }
+}
+
+class Rainbow {
+    constructor(min = 0, max = 100, colors = ['ff0000', 'ffff00', '00ff00', '0000ff']) {
+        this.gradients = null;
+        this.minNum = min;
+        this.maxNum = max;
+        this.setColors(colors);
+    }
+
+    setColors(spectrum) {
+        if (spectrum.length < 2) {
+            throw new Error('Rainbow must have two or more colours.');
+        } else {
+            const increment = (this.maxNum - this.minNum) / (spectrum.length - 1);
+            const firstGradient = new ColorGradient(spectrum[0], spectrum[1], this.minNum, this.minNum + increment);
+            this.gradients = [firstGradient];
+
+            for (let i = 1; i < spectrum.length - 1; i++) {
+                this.gradients[i] = new ColorGradient(spectrum[i], spectrum[i + 1], this.minNum + increment * i, this.minNum + increment * (i + 1));
+            }
+
+            this.colours = spectrum;
+        }
+
+        return this;
+    }
+
+    /**
+     * format example: [[0, '#000000'], [0.2, '#FF0000'], [1, '#FFFFFF']]
+     * @param spectrum
+     */
+    setColorFromGradient(spectrum) {
+        this.gradients = [];
+        let spaceSize = this.maxNum - this.minNum;
+        let [prevValue, prevColor] = spectrum[0];
+
+        for (let i = 1; i < spectrum.length; i++) {
+            let [value, color] = spectrum[i];
+
+            this.gradients.push(new ColorGradient(prevValue, value, this.minNum + spaceSize * prevColor, this.minNum + spaceSize * color));
+
+            prevValue = value;
+            prevColor = color;
+        }
+
+        return this;
+    };
+
+    setSpectrum() {
+        this.setColors(arguments);
+
+        return this;
+    };
+
+    setSpectrumByArray(array) {
+        return this.setColors(array);
+    };
+
+    colorAt(number) {
+        if (isNaN(number)) {
+            throw new TypeError(number + ' is not a number');
+        } else if (this.gradients.length === 1) {
+            return this.gradients[0].colourAt(number);
+        } else {
+            let segment = (this.maxNum - this.minNum) / (this.gradients.length);
+            let index = Math.min(Math.floor((Math.max(number, this.minNum) - this.minNum) / segment), this.gradients.length - 1);
+            return this.gradients[index].colourAt(number);
+        }
+    };
+
+    setNumberRange(minNumber, maxNumber) {
+        if (maxNumber > minNumber) {
+            this.minNum = minNumber;
+            this.maxNum = maxNumber;
+            this.setColors(this.colours);
+        } else {
+            throw new RangeError('maxNumber (' + maxNumber + ') is not greater than minNumber (' + minNumber + ')');
+        }
+        return this;
+    }
+}
+
 
 // Extended list of CSS colornames s taken from
 // http://www.w3.org/TR/css3-color/#svg-color
@@ -157,166 +318,5 @@ const colorNames = {
     yellowgreen: "9ACD32"
 };
 
-class ColorGradient {
-    constructor(start, end, min, max) {
-        this.startColour = this.getHexColor(start);
-        this.endColour = this.getHexColor(end);
-        this.minNum = min;
-        this.maxNum = max;
-    }
 
-    setGradient(colourStart, colourEnd) {
-        this.startColour = this.getHexColor(colourStart);
-        this.endColour = this.getHexColor(colourEnd);
-
-        return this;
-    };
-
-    setNumberRange(minNumber, maxNumber) {
-        if (maxNumber > minNumber) {
-            this.minNum = minNumber;
-            this.maxNum = maxNumber;
-
-            return this;
-        } else {
-            throw new RangeError('maxNumber (' + maxNumber + ') is not greater than minNumber (' + minNumber + ')');
-        }
-    };
-
-    colourAt(number) {
-        return this.calcHex(number, this.startColour.substring(0, 2), this.endColour.substring(0, 2))
-            + this.calcHex(number, this.startColour.substring(2, 4), this.endColour.substring(2, 4))
-            + this.calcHex(number, this.startColour.substring(4, 6), this.endColour.substring(4, 6));
-    };
-
-    calcHex(number, channelStart_Base16, channelEnd_Base16) {
-        var num = number;
-        if (num < this.minNum) {
-            num = this.minNum;
-        }
-        if (num > this.maxNum) {
-            num = this.maxNum;
-        }
-        var numRange = this.maxNum - this.minNum;
-        var cStart_Base10 = parseInt(channelStart_Base16, 16);
-        var cEnd_Base10 = parseInt(channelEnd_Base16, 16);
-        var cPerUnit = (cEnd_Base10 - cStart_Base10) / numRange;
-        var c_Base10 = Math.round(cPerUnit * (num - this.minNum) + cStart_Base10);
-
-        return this.formatHex(c_Base10.toString(16));
-    }
-
-    static formatHex(hex) {
-        if (hex.length === 1) {
-            return '0' + hex;
-        } else {
-            return hex;
-        }
-    }
-
-    static isHexColor(string) {
-        var regex = /^#?[0-9a-fA-F]{6}$/i;
-
-        return regex.test(string);
-    }
-
-    /**
-     *
-     * @param {String} string
-     * @returns {*}
-     */
-    static getHexColor(string) {
-        if (ColorGradient.isHexColor(string)) {
-            return string.substring(string.length - 6, string.length);
-        } else {
-            var name = string.toLowerCase();
-            if (colorNames.hasOwnProperty(name)) {
-                return colorNames[name];
-            }
-            throw new Error(string + ' is not a valid colour.');
-        }
-    }
-}
-
-class RainbowVis {
-    constructor(min, max, colors) {
-        this.gradients = null;
-        this.minNum = min;
-        this.maxNum = max;
-        this.colours = colors
-    }
-
-    setColors(spectrum) {
-        if (spectrum.length < 2) {
-            throw new Error('Rainbow must have two or more colours.');
-        } else {
-            var increment = (this.maxNum - this.minNum) / (spectrum.length - 1);
-            var firstGradient = new ColorGradient(spectrum[0], spectrum[1], this.minNum, this.minNum + increment);
-            this.gradients = [firstGradient];
-
-            for (var i = 1; i < spectrum.length - 1; i++) {
-                this.gradients[i] = new ColorGradient(spectrum[i], spectrum[i + 1], this.minNum + increment * i, this.minNum + increment * (i + 1));
-            }
-
-            this.colours = spectrum;
-        }
-
-        return this;
-    }
-
-    /**
-     * format example: [[0, '#000000'], [0.2, '#FF0000'], [1, '#FFFFFF']]
-     * @param spectrum
-     */
-    setColorFromGradient(spectrum) {
-        this.gradients = [];
-        var spaceSize = this.maxNum - this.minNum;
-        var [prevValue, prevColor] = spectrum[0];
-
-        for (var i = 1; i < spectrum.length; i++) {
-            var [value, color] = spectrum[i];
-
-            this.gradients.push(new ColorGradient(prevValue, value, this.minNum + spaceSize * prevColor, this.minNum + spaceSize * color));
-
-            prevValue = value;
-            prevColor = color;
-        }
-
-        return this;
-    };
-
-    setSpectrum() {
-        this.setColors(arguments);
-
-        return this;
-    };
-
-    setSpectrumByArray(array) {
-        return this.setColors(array);
-    };
-
-    colorAt(number) {
-        if (isNaN(number)) {
-            throw new TypeError(number + ' is not a number');
-        } else if (this.gradients.length === 1) {
-            return this.gradients[0].colorAt(number);
-        } else {
-            var segment = (this.maxNum - this.minNum) / (this.gradients.length);
-            var index = Math.min(Math.floor((Math.max(number, this.minNum) - this.minNum) / segment), this.gradients.length - 1);
-            return this.gradients[index].colorAt(number);
-        }
-    };
-
-    setNumberRange(minNumber, maxNumber) {
-        if (maxNumber > minNumber) {
-            this.minNum = minNumber;
-            this.maxNum = maxNumber;
-            this.setColors(this.colours);
-        } else {
-            throw new RangeError('maxNumber (' + maxNumber + ') is not greater than minNumber (' + minNumber + ')');
-        }
-        return this;
-    }
-}
-
-export default RainbowVis
+export default Rainbow
